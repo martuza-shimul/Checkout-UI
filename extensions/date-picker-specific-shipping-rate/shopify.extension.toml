@@ -1,0 +1,25 @@
+
+api_version = "2024-07"
+
+[capabilities]
+api_access = true
+network_access = true
+block_progress = true
+
+
+[[extensions]]
+name = "Date picker - specific"
+handle = "date-picker-specific"
+type = "ui_extension"
+
+
+
+
+[[extensions.targeting]]
+module = "./src/Checkout.jsx"
+target = "purchase.checkout.shipping-option-list.render-after"
+export = "purchaseCheckoutShippingOptionListRenderAfter"
+
+
+
+
