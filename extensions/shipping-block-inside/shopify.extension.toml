@@ -1,0 +1,18 @@
+
+api_version = "2024-07"
+
+
+[[extensions]]
+name = "Shipping Block(inside)"
+handle = "shipping-blockinside"
+type = "ui_extension"
+
+
+[[extensions.targeting]]
+module = "./src/Checkout.jsx"
+target = "purchase.checkout.shipping-option-item.render-after"
+export = "shippingItemAfter"
+
+[extensions.capabilities]
+block_progress = true
+api_access = true

@@ -1,0 +1,19 @@
+
+api_version = "2024-07"
+
+[[extensions]]
+name = "Shipping Item modify"
+handle = "shipping-item-modify"
+type = "ui_extension"
+
+
+[[extensions.targeting]]
+target = "purchase.checkout.shipping-option-item.details.render"
+module = "./src/Checkout.jsx"
+export = "shippingItemDetails"
+
+
+[extensions.capabilities]
+block_progress = true
+api_access = true
+
