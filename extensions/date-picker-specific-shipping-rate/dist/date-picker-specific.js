@@ -1133,7 +1133,7 @@
             }
             return dispatcher.useContext(Context);
           }
-          function useState2(initialState) {
+          function useState3(initialState) {
             var dispatcher = resolveDispatcher();
             return dispatcher.useState(initialState);
           }
@@ -1145,7 +1145,7 @@
             var dispatcher = resolveDispatcher();
             return dispatcher.useRef(initialValue);
           }
-          function useEffect(create, deps) {
+          function useEffect2(create, deps) {
             var dispatcher = resolveDispatcher();
             return dispatcher.useEffect(create, deps);
           }
@@ -1928,7 +1928,7 @@
           exports.useContext = useContext3;
           exports.useDebugValue = useDebugValue;
           exports.useDeferredValue = useDeferredValue;
-          exports.useEffect = useEffect;
+          exports.useEffect = useEffect2;
           exports.useId = useId;
           exports.useImperativeHandle = useImperativeHandle;
           exports.useInsertionEffect = useInsertionEffect;
@@ -1936,7 +1936,7 @@
           exports.useMemo = useMemo4;
           exports.useReducer = useReducer;
           exports.useRef = useRef2;
-          exports.useState = useState2;
+          exports.useState = useState3;
           exports.useSyncExternalStore = useSyncExternalStore;
           exports.useTransition = useTransition;
           exports.version = ReactVersion;
@@ -18418,10 +18418,10 @@
             }
           }
           var jsx5 = jsxWithValidationDynamic;
-          var jsxs2 = jsxWithValidationStatic;
+          var jsxs = jsxWithValidationStatic;
           exports.Fragment = REACT_FRAGMENT_TYPE;
           exports.jsx = jsx5;
-          exports.jsxs = jsxs2;
+          exports.jsxs = jsxs;
         })();
       }
     }
@@ -19140,11 +19140,8 @@
   // node_modules/@shopify/ui-extensions/build/esm/surfaces/checkout/extension.mjs
   var extension = createExtensionRegistrationFunction();
 
-  // node_modules/@shopify/ui-extensions/build/esm/surfaces/checkout/components/DatePicker/DatePicker.mjs
-  var DatePicker = createRemoteComponent("DatePicker");
-
-  // node_modules/@shopify/ui-extensions/build/esm/surfaces/checkout/components/Heading/Heading.mjs
-  var Heading = createRemoteComponent("Heading");
+  // node_modules/@shopify/ui-extensions/build/esm/surfaces/checkout/components/DateField/DateField.mjs
+  var DateField = createRemoteComponent("DateField");
 
   // node_modules/@shopify/ui-extensions-react/build/esm/surfaces/checkout/render.mjs
   var import_react6 = __toESM(require_react(), 1);
@@ -19474,14 +19471,11 @@ ${errorInfo.componentStack}`);
     }
   };
 
-  // node_modules/@shopify/ui-extensions-react/build/esm/surfaces/checkout/components/DatePicker/DatePicker.mjs
-  var DatePicker2 = createRemoteReactComponent(DatePicker);
-
-  // node_modules/@shopify/ui-extensions-react/build/esm/surfaces/checkout/components/Heading/Heading.mjs
-  var Heading2 = createRemoteReactComponent(Heading);
+  // node_modules/@shopify/ui-extensions-react/build/esm/surfaces/checkout/components/DateField/DateField.mjs
+  var DateField2 = createRemoteReactComponent(DateField);
 
   // node_modules/@shopify/ui-extensions-react/build/esm/surfaces/checkout/hooks/api.mjs
-  var import_react10 = __toESM(require_react(), 1);
+  var import_react9 = __toESM(require_react(), 1);
 
   // node_modules/@shopify/ui-extensions-react/build/esm/surfaces/checkout/errors.mjs
   var CheckoutUIExtensionError = class extends Error {
@@ -19499,11 +19493,33 @@ ${errorInfo.componentStack}`);
 
   // node_modules/@shopify/ui-extensions-react/build/esm/surfaces/checkout/hooks/api.mjs
   function useApi(_target) {
-    const api = (0, import_react10.useContext)(ExtensionApiContext);
+    const api = (0, import_react9.useContext)(ExtensionApiContext);
     if (api == null) {
       throw new CheckoutUIExtensionError("You can only call this hook when running as a checkout UI extension.");
     }
     return api;
+  }
+
+  // node_modules/@shopify/ui-extensions-react/build/esm/surfaces/checkout/hooks/subscription.mjs
+  var import_react10 = __toESM(require_react(), 1);
+  function useSubscription(subscription) {
+    const [, setValue] = (0, import_react10.useState)(subscription.current);
+    (0, import_react10.useEffect)(() => {
+      let didUnsubscribe = false;
+      const checkForUpdates = (newValue) => {
+        if (didUnsubscribe) {
+          return;
+        }
+        setValue(newValue);
+      };
+      const unsubscribe = subscription.subscribe(checkForUpdates);
+      checkForUpdates(subscription.current);
+      return () => {
+        didUnsubscribe = true;
+        unsubscribe();
+      };
+    }, [subscription]);
+    return subscription.current;
   }
 
   // node_modules/@shopify/ui-extensions-react/build/esm/surfaces/checkout/hooks/metafields.mjs
@@ -19516,24 +19532,36 @@ ${errorInfo.componentStack}`);
     throw new ExtensionHasNoMethodError("applyMetafieldChange", api.extension.target);
   }
 
+  // node_modules/@shopify/ui-extensions-react/build/esm/surfaces/checkout/hooks/delivery-group-list-target.mjs
+  function useDeliveryGroupListTarget() {
+    const api = useApi();
+    return useSubscription(api.target);
+  }
+
   // extensions/date-picker-specific-shipping-rate/src/Checkout.jsx
   var import_jsx_runtime4 = __toESM(require_jsx_runtime());
   reactExtension("purchase.checkout.shipping-option-list.render-after", () => /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(App, {}));
   function App() {
     const [selectedDate, setSelectedDate] = (0, import_react12.useState)("");
     const [yesterday, setYesterday] = (0, import_react12.useState)("");
+    const [today, setToday] = (0, import_react12.useState)("");
+    const { extension: extension2 } = useApi();
+    const { target } = extension2;
     const metafieldNamespace = "extDate";
     const metafieldKey = "delivery-date";
     const applyMetafieldsChange = useApplyMetafieldsChange();
+    const deliveryGroupList = useDeliveryGroupListTarget();
     (0, import_react12.useMemo)(() => {
-      let today = /* @__PURE__ */ new Date();
-      const yesterday2 = new Date(today);
-      yesterday2.setDate(today.getDate() - 1);
-      const tomorrow = new Date(today);
-      tomorrow.setDate(today.getDate() + 1);
-      const deliveryDate = today.getDay() === 0 ? tomorrow : today;
+      let today2 = /* @__PURE__ */ new Date();
+      today2.setDate(today2.getDate());
+      const yesterday2 = new Date(today2);
+      yesterday2.setDate(today2.getDate() - 1);
+      const tomorrow = new Date(today2);
+      tomorrow.setDate(today2.getDate() + 1);
+      const deliveryDate = today2.getDay() === 0 ? tomorrow : today2;
       setSelectedDate(formatDate(deliveryDate));
       setYesterday(formatDate(yesterday2));
+      setToday(formatDate(today2));
     }, []);
     const handleChangeDate = (0, import_react12.useCallback)((selectedDate2) => {
       setSelectedDate(selectedDate2);
@@ -19545,22 +19573,43 @@ ${errorInfo.componentStack}`);
         value: selectedDate2
       });
     }, []);
-    return /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)(import_jsx_runtime4.Fragment, { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(Heading2, { children: "Select a delivery Date" }),
-      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(
-        DatePicker2,
-        {
-          selected: selectedDate,
-          onChange: handleChangeDate,
-          disabled: ["Sunday", { end: yesterday }]
-        }
-      )
-    ] });
+    if (!deliveryGroupList || deliveryGroupList.groupType !== "oneTimePurchase") {
+      return null;
+    }
+    const { deliveryGroups } = deliveryGroupList;
+    const isCustomSelected = () => {
+      const customHandles = new Set(
+        deliveryGroups.map(
+          ({ deliveryOptions }) => {
+            var _a;
+            return (_a = deliveryOptions.find(({ title }) => title === "Standard")) == null ? void 0 : _a.handle;
+          }
+        ).filter(Boolean)
+      );
+      return deliveryGroups.some(
+        ({ selectedDeliveryOption }) => customHandles.has(selectedDeliveryOption == null ? void 0 : selectedDeliveryOption.handle)
+      );
+    };
+    return isCustomSelected() ? /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(import_jsx_runtime4.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(
+      DateField2,
+      {
+        label: "WWC delivery Date",
+        onChange: handleChangeDate,
+        disabled: [
+          "Saturday",
+          "Sunday",
+          "2024-08-28",
+          { end: today },
+          { start: "2024-09-22" }
+        ],
+        value: selectedDate
+      }
+    ) }) : null;
   }
   var formatDate = (date) => {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
+    const day = String(date.getDate() + 1).padStart(2, "0");
     return `${year}-${month}-${day}`;
   };
 })();
