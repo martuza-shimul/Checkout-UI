@@ -1,0 +1,16 @@
+
+api_version = "2024-07"
+
+[[extensions]]
+name = "Line Items"
+handle = "line-items"
+type = "ui_extension"
+
+
+
+[[extensions.targeting]]
+module = "./src/Checkout.jsx"
+target = "purchase.checkout.block.render"
+
+[extensions.capabilities]
+api_access = true
